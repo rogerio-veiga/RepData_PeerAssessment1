@@ -1,15 +1,11 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
 
 
-``` {r}
+
+```r
 act <- read.csv("activity.csv")
 act$date <- as.Date(as.character(act$date))
 ```
@@ -20,7 +16,8 @@ act$date <- as.Date(as.character(act$date))
 I calculated the total steps per day adding up the steps of each day, given by the 
 sum of steps taken in each five minutes interval. 
 
-``` {r}
+
+```r
 actTotalStepsPerDay <- tapply(act$steps, act$date, sum, na.rm=TRUE)
 hist(actTotalStepsPerDay, main="Total number of steps taken per day", 
      ylab="Number of days", xlab="Total of steps in a day")
@@ -29,35 +26,51 @@ colMean <- "red"
 colMedian <- "blue"
 abline(v=mean(actTotalStepsPerDay), col=colMean, pty=3)
 abline(v=median(actTotalStepsPerDay), col = colMedian, pty=3)
-mean(actTotalStepsPerDay)
-median(actTotalStepsPerDay)
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
+```r
+mean(actTotalStepsPerDay)
+```
+
+```
+## [1] 9354.23
+```
+
+```r
+median(actTotalStepsPerDay)
+```
+
+```
+## [1] 10395
 ```
 
 
 * In more then 25 days, this person walked between 10000 and 15000 steps. 
-* The mean total steps per day is marked by the `r colMean ` line and it is 
-`r round(mean(actTotalStepsPerDay), 0)` steps.
-* In a median day, the person takes `r format(round(median(actTotalStepsPerDay), 0), scientific=FALSE)` steps, as marked in the `r colMedian ` line in the histogram.
+* The mean total steps per day is marked by the red line and it is 
+9354 steps.
+* In a median day, the person takes 10395 steps, as marked in the blue line in the histogram.
 
 
 ## What is the average daily activity pattern?
 
 To show the average daily activity, I calculated the mean of steps for each interval, across all days.  
 
-```{r}
+
+```r
 actAverageStepsPerInterval <- tapply(act$steps, act$interval, mean, na.rm=TRUE)
 
 ## Removing days which there is no measures
 actAverageStepsPerInterval <- actAverageStepsPerInterval[!is.na(actAverageStepsPerInterval)]
 plot(x=as.numeric(names(actAverageStepsPerInterval)), y=actAverageStepsPerInterval, type="l", 
      main="Average daily activity", ylab="Mean of steps", xlab="Interval in the day")
-
-
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
 * In the plot, we can see that the day start slowly, with almost no steps until the 500th interval. 
-* The maximum average of steps, `r round(max(actAverageStepsPerInterval), 0)`, happens in the `r names(actAverageStepsPerInterval)[actAverageStepsPerInterval==max(actAverageStepsPerInterval)]`th 
+* The maximum average of steps, 206, happens in the 835th 
 interval of the day
  
 
@@ -67,14 +80,19 @@ NAs values can introduce some bias into some calculations and, because of it, we
 
 We calculate the number of NAs in the dataset this way:
 
-``` {r}
+
+```r
 totalNAs <- sum(is.na(act$steps))
 totalNAs
 ```
+
+```
+## [1] 2304
+```
 To imput missings, I decided to fill the NAs with the mean of all days in that specific interval. 
 
-``` {r}
 
+```r
 actNAs <- is.na(act$steps)
 act2 <- act[actNAs, ]
 
@@ -84,13 +102,13 @@ for (i in 1: sum(actNAs)) {
 
 actNoNAs <- act
 actNoNAs[actNAs, ] <- act2
-
 ```
 
 Have imputed the missings, now we plot a histogram, the mean and the median to see if differs from 
 the estimates from the first assignment. 
 
-``` {r}
+
+```r
 actTotalStepsPerDay2 <- tapply(actNoNAs$steps, actNoNAs$date, sum)
 hist(actTotalStepsPerDay2, main="Total number of steps taken per day", 
      ylab="Number of days", xlab="Total of steps in a day")
@@ -99,9 +117,24 @@ colMean <- "red"
 colMedian <- "blue"
 abline(v=mean(actTotalStepsPerDay2), col=colMean, pty=3)
 abline(v=median(actTotalStepsPerDay2), col = colMedian, pty=3)
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+
+```r
 mean(actTotalStepsPerDay2)
+```
+
+```
+## [1] 10765.64
+```
+
+```r
 median(actTotalStepsPerDay2)
+```
+
+```
+## [1] 10762
 ```
 
 The median and the mean they are almost the same after imputing values to the NAs. And the median values are 
@@ -113,13 +146,11 @@ For doing this, I created a matrix, with tapply, I calculated the mean of steps 
 weekends and weekdays. Then, I ploted.  
 
 
-``` {r}
 
-
-
+```r
 ## Creating a factor variable with days of week (it is Brazilian Portuguese)
 actNoNAs$weekday <- weekdays(actNoNAs$date, abbreviate=TRUE)
-actNoNAs$weekend <- (actNoNAs$weekday=="sáb" | actNoNAs$weekday=="dom")
+actNoNAs$weekend <- (actNoNAs$weekday=="sÃ¡b" | actNoNAs$weekday=="dom")
 actNoNAs$weekend[!actNoNAs$weekend] <- "Weekday"
 actNoNAs$weekend[actNoNAs$weekend==TRUE] <- "Weekend"
 
@@ -132,17 +163,30 @@ plot(x = as.numeric(unlist(dimnames(df)[1])), y=as.numeric(unlist(df["Weekday"])
      ylab="Mean of steps", xlab="Interval", ylim=c(0,200))
 plot(x = as.numeric(unlist(dimnames(df)[1])), y=as.numeric(unlist(df["Weekend"])), type = "l", 
      ylab="Mean of steps", xlab="Interval", ylim=c(0, 200))
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
 
 As we can see, in the weekend, the steps are more regular. The mean of steps is greater in the weekends than in the weekdays, but in the 
 weekdays we observe more steps in the intervals between 800-1000th. We can see this in the summary, that I printed below. 
 
-```{r}
 
+```r
 summary(df$Weekday)
-summary(df$Weekend)
+```
 
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.000   2.289  25.810  35.610  50.810 230.400
+```
+
+```r
+summary(df$Weekend)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.000   1.234  32.310  42.360  74.610 166.600
 ```
 
 
